@@ -71,12 +71,12 @@ def convert_capture(cap, spectrum_length=1340):
     return arr
 
 
-def setup_camera():
+def setup_lightfield():
     """
     Start and set up lightfield.
     usage
     -----
-    auto, experiment, set_value, set_rm_exposure = setup_camera()
+    auto, experiment, set_value, set_rm_exposure = setup_lightfield()
     """
     # Create the LightField Application (true for visible)
     # The 2nd parameter forces LF to load with no experiment

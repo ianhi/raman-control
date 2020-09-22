@@ -1,6 +1,8 @@
 import nidaqmx
 import numpy as np
 
+SAMPLERATE = 100000
+
 
 class shutter_controller:
     def __init__(self, shutter, open_):
@@ -18,7 +20,6 @@ class shutter_controller:
 
 
 def setup_laser_control(
-    sampleRate=100000,
     sampleClockSource="PFI0",
     devName="Dev1",
     channels=["Dev1/ao0", "Dev1/ao1"],
