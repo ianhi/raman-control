@@ -25,6 +25,9 @@ clr.AddReference("PrincetonInstruments.LightFieldAddInSupportServices")
 from PrincetonInstruments.LightField.Automation import *
 from PrincetonInstruments.LightField.AddIns import *
 
+import matplotlib.pyplot as plt
+from .utils import make_grid
+
 
 def convert_buffer(net_array, image_format):
     src_hndl = GCHandle.Alloc(net_array, GCHandleType.Pinned)
@@ -101,3 +104,75 @@ def setup_lightfield():
         return set_value(CameraSettings.ShutterTimingExposureTime, exposure_time)
 
     return auto, experiment, set_value, set_rm_exposure
+
+
+def create_collection_functions(
+    galvo, shutter, experiment, set_rm_exposure, open_shutter, nidaqmx
+):
+    """
+    capture_rm_grid, collect_spectra = create_collection_functions(galvo, shutter, experiment, set_rm_exposure, nidaqmx)
+
+    returns
+    -------
+    capture_rm_grid
+    collect_spectra
+    """
+
+    def collect_spectra(points, exposure=20):
+        """
+        Parameters
+        ----------
+        points : arraylike
+            shape (2, N)
+        exposure : float (Default: 20)
+            exposure time in ms
+
+        Returns
+        -------
+        spectra : array
+            with shape (N, 1340)
+        """
+        points = np.asarray(points)
+        galvo.stop()
+        # xy_grid, volts = make_grid(N)
+        SAMPLERATE = 100000
+        SAMPLECLOCKSOURCE = "PFI0"
+        galvo.timing.cfg_samp_clk_timing(
+            SAMPLERATE,
+            source=SAMPLECLOCKSOURCE,
+            active_edge=nidaqmx.constants.Edge.FALLING,
+            sample_mode=nidaqmx.constants.AcquisitionType.FINITE,
+            samps_per_chan=points.shape[1],
+        )
+        galvo.write(points, auto_start=False)
+        set_rm_exposure(exposure)
+
+        galvo.stop()
+        galvo.start()
+        experiment.Stop()
+        with open_shutter:
+            dataset = experiment.Capture(points.shape[1])
+        galvo.stop()
+        return convert_capture(dataset)
+
+    def capture_rm_grid(N=75, exposure=20):
+        """
+
+        Parameters
+        ----------
+        N : int
+            Length of the grid sides
+        exposure : float
+            exposure time in ms
+
+        Returns
+        -------
+        spectra : array
+            shape (N, N, 1340)
+        volts : 1D array
+            volts for passing to laser-pointer
+        """
+        xy_grid, volts = make_grid(N)
+        return collect_spectra(xy_grid, exposure).squeeze().reshape(N, N, 1340), volts
+
+    return capture_rm_grid, collect_spectra
