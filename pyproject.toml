@@ -1,0 +1,7 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+
+[tool.isort]
+profile = "black"
+src_paths = "raman_control"
+multi_line_output = 3
