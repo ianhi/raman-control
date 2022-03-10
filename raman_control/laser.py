@@ -3,8 +3,11 @@ import numpy as np
 
 SAMPLERATE = 100000
 
-
-class shutter_controller:
+__all__ = [
+    "ShutterController",
+    "LaserController",
+]
+class ShutterController:
     def __init__(self, shutter, open_):
         self.shutter = shutter
         self.open_ = open_
@@ -18,34 +21,59 @@ class shutter_controller:
     def __call__(self):
         self.shutter.write(self.open_)
 
+class LaserController:
+    def __init__(self, sampleClockSource="PFI0", devName="Dev1", channels=["Dev1/a0", "Dev1/ao1"]) -> None:
+        # galvo mirror
+        self._galvo = nidaqmx.Task("galvoAO")
+        self._galvo.ao_channels.add_ao_voltage_chan(channels[0], "x", min_val=-10, max_val=10)
+        self._galvo.ao_channels.add_ao_voltage_chan(channels[1], "y", min_val=-10, max_val=10)
 
-def setup_laser_control(
-    sampleClockSource="PFI0",
-    devName="Dev1",
-    channels=["Dev1/ao0", "Dev1/ao1"],
-):
+        # laser shutter
+        self._shutter = nidaqmx.Task("shutterDO")
+        shutter_chan = self._shutter.do_channels.add_do_chan("Dev1/port0/line0")
+        self._open_shutter = ShutterController(self._shutter, True)
+        self._close_shutter = ShutterController(self._shutter, False)
+        # shutter.open = open_shutter
+        # shutter.close = close_shutter
+    @property
+    def open_shutter(self) -> ShutterController:
+        return self._open_shutter
 
-    # galvo mirror
-    galvo = nidaqmx.Task("galvoAO")
-    galvo.ao_channels.add_ao_voltage_chan(channels[0], "x", min_val=-10, max_val=10)
-    galvo.ao_channels.add_ao_voltage_chan(channels[1], "y", min_val=-10, max_val=10)
+    @property
+    def close_shutter(self) -> ShutterController:
+        return self._close_shutter
 
-    # laser shutter
-    shutter = nidaqmx.Task("shutterDO")
-    shutter_chan = shutter.do_channels.add_do_chan("Dev1/port0/line0")
+    @property
+    def galvo(self) -> nidaqmx.Task:
+        return self._galvo
 
-    open_shutter = shutter_controller(shutter, True)
-    close_shutter = shutter_controller(shutter, False)
-    shutter.open = open_shutter
-    shutter.close = close_shutter
-
-    def close_daq():
+    def close_daq(self):
         """
         stop then close the galvo and shutter daq connections
         """
-        shutter.stop()
-        shutter.close()
-        galvo.stop()
-        galvo.close()
+        self._shutter.stop()
+        self._shutter.close()
+        self._galvo.stop()
+        self._galvo.close()
 
-    return galvo, shutter, open_shutter, close_shutter, close_daq
+
+    def prepare_for_collection(self, points: np.ndarray):
+        """
+        Set up the galvo to aim at positions on camera frames.
+
+        Parameters
+        ----------
+        points : 2xN array
+        """
+        self._galvo.stop()
+        # xy_grid, volts = make_grid(N)
+        SAMPLERATE = 100000
+        SAMPLECLOCKSOURCE = "PFI0"
+        self._galvo.timing.cfg_samp_clk_timing(
+            SAMPLERATE,
+            source=SAMPLECLOCKSOURCE,
+            active_edge=nidaqmx.constants.Edge.FALLING,
+            sample_mode=nidaqmx.constants.AcquisitionType.FINITE,
+            samps_per_chan=points.shape[1],
+        )
+        self._galvo.write(points, auto_start=False)
