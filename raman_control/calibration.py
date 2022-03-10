@@ -43,7 +43,15 @@ def create_calibrate(capture_rm_grid, snap_image, lp):
             """
             Usage
             -----
-            ``transform_pointer, bfx_to_rmx, bfy_to_rmy, inverse_x, inverse_y = fit_calibration()``
+            ```
+            (
+                transform_pointer,
+                bfx_to_rmx,
+                bfy_to_rmy,
+                inverse_x,
+                inverse_y,
+            ) = fit_calibration()
+            ```
             """
             return fit_transform_pointers(lp_bf, lp_rm)
 

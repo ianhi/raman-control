@@ -1,19 +1,23 @@
 # Import the .NET class library
-import clr, ctypes
+import ctypes
+import os
 
 # Import python sys module
-import sys, os
+import sys
+
+import clr
 
 # numpy import
 import numpy as np
 
+# fmt: off
 # Import c compatible List and String
-from System import *
-from System.Collections.Generic import List
-from System.Runtime.InteropServices import Marshal
-from System.Runtime.InteropServices import GCHandle, GCHandleType
-from raman_control.laser import LaserController
+from System import *  # noqa
+from System.Collections.Generic import List  # noqa
+from System.Runtime.InteropServices import GCHandle, GCHandleType  # noqa
 
+from .laser import LaserController
+from .utils import make_grid
 
 # Add needed dll references
 sys.path.append(os.environ["LIGHTFIELD_ROOT"])
@@ -22,12 +26,11 @@ clr.AddReference("PrincetonInstruments.LightFieldViewV5")
 clr.AddReference("PrincetonInstruments.LightField.AutomationV5")
 clr.AddReference("PrincetonInstruments.LightFieldAddInSupportServices")
 
-# PI imports
-from PrincetonInstruments.LightField.Automation import *
-from PrincetonInstruments.LightField.AddIns import *
 
-import matplotlib.pyplot as plt
-from .utils import make_grid
+from PrincetonInstruments.LightField.AddIns import *  # noqa
+from PrincetonInstruments.LightField.Automation import *  # noqa
+
+# fmt: on
 
 
 class SpectraCollector:

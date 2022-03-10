@@ -7,6 +7,8 @@ __all__ = [
     "ShutterController",
     "LaserController",
 ]
+
+
 class ShutterController:
     def __init__(self, shutter, open_):
         self.shutter = shutter
@@ -21,20 +23,29 @@ class ShutterController:
     def __call__(self):
         self.shutter.write(self.open_)
 
+
 class LaserController:
-    def __init__(self, sampleClockSource="PFI0", devName="Dev1", channels=["Dev1/a0", "Dev1/ao1"]) -> None:
+    def __init__(
+        self, sampleClockSource="PFI0", devName="Dev1", channels=["Dev1/a0", "Dev1/ao1"]
+    ) -> None:
         # galvo mirror
         self._galvo = nidaqmx.Task("galvoAO")
-        self._galvo.ao_channels.add_ao_voltage_chan(channels[0], "x", min_val=-10, max_val=10)
-        self._galvo.ao_channels.add_ao_voltage_chan(channels[1], "y", min_val=-10, max_val=10)
+        self._galvo.ao_channels.add_ao_voltage_chan(
+            channels[0], "x", min_val=-10, max_val=10
+        )
+        self._galvo.ao_channels.add_ao_voltage_chan(
+            channels[1], "y", min_val=-10, max_val=10
+        )
 
         # laser shutter
         self._shutter = nidaqmx.Task("shutterDO")
-        shutter_chan = self._shutter.do_channels.add_do_chan("Dev1/port0/line0")
+        # not sure if this next line does anything or is important
+        self._shutter.do_channels.add_do_chan("Dev1/port0/line0")
         self._open_shutter = ShutterController(self._shutter, True)
         self._close_shutter = ShutterController(self._shutter, False)
         # shutter.open = open_shutter
         # shutter.close = close_shutter
+
     @property
     def open_shutter(self) -> ShutterController:
         return self._open_shutter
@@ -55,7 +66,6 @@ class LaserController:
         self._shutter.close()
         self._galvo.stop()
         self._galvo.close()
-
 
     def prepare_for_collection(self, points: np.ndarray):
         """

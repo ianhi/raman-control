@@ -24,7 +24,7 @@ elseif (i<size(data,1))
     i=i+1;
 ```
 
-and additional benefit is that Koseki said that the lightfield rep said this approach has lower overhead than the capture method. 
+and additional benefit is that Koseki said that the lightfield rep said this approach has lower overhead than the capture method.
 
 ## trigger raman on callbacks to pycromanager on multidim acq
 

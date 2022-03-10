@@ -1,7 +1,8 @@
 from ._version import __version__
-from .laser import ShutterController, LaserController
+from .laser import LaserController, ShutterController
 from .spectra import SpectraCollector
 from .utils import make_grid
+
 # from .calibration import *
 
 __all__ = [
@@ -10,5 +11,4 @@ __all__ = [
     "LaserController",
     "SpectraCollector",
     "make_grid",
-
 ]
