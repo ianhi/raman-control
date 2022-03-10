@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 # Import the .NET class library
 import ctypes
 import os
@@ -34,9 +36,18 @@ from PrincetonInstruments.LightField.Automation import *  # noqa
 
 
 class SpectraCollector:
-    def __init__(self, lightFieldConfig: str = "Pixis_2MHz") -> None:
+    _instance = None
+
+    @classmethod
+    def instance(
+        cls, lightFieldConfig: str="Pixis_2Mhz") -> SpectraCollector:
+        if cls._instance is None:
+            cls._instance = cls(lightFieldConfig)
+        return cls._instance
+
+    def __init__(self, lightFieldConfig: str = "Pixis_2MHz", laser_controller: LaserController=None) -> None:
         self._setup_lightfield(lightFieldConfig)
-        self._laser_controller = LaserController()
+        self._laser_controller = laser_controller or LaserController.instance()
 
     @staticmethod
     def _convert_buffer(net_array, image_format):
