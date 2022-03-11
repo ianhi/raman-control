@@ -61,12 +61,18 @@ class DaqController:
 
         # laser shutter
         self._shutter = nidaqmx.Task("shutterDO")
-        # not sure if this next line does anything or is important
         self._shutter.do_channels.add_do_chan("Dev1/port0/line0")
         self._open_shutter = DigitalStateContextManager(self._shutter, True)
         self._close_shutter = DigitalStateContextManager(self._shutter, False)
-        # shutter.open = open_shutter
-        # shutter.close = close_shutter
+
+        # focus filter actuator
+        self._filter = nidaqmx.Task("filterDO")
+        self._filter.do_channels.add_do_chan("Dev1/port2/line4")
+        self._remove_filter = DigitalStateContextManager(self._shutter, True)
+
+    @property
+    def remove_filter(self) -> DigitalStateContextManager:
+        return self._filter
 
     @property
     def open_shutter(self) -> DigitalStateContextManager:
@@ -88,6 +94,8 @@ class DaqController:
         self._shutter.close()
         self._galvo.stop()
         self._galvo.close()
+        self._filter.stop()
+        self._filter.close()
 
     def prepare_for_collection(self, points: np.ndarray):
         """
