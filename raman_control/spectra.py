@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-# Import the .NET class library
 import ctypes
 import os
+import time
 
 # Import python sys module
 import sys
 
+# Import the .NET class library
 import clr
 
 # numpy import
@@ -39,15 +40,42 @@ class SpectraCollector:
     _instance = None
 
     @classmethod
-    def instance(
-        cls, lightFieldConfig: str="Pixis_2Mhz") -> SpectraCollector:
+    def instance(cls, lightFieldConfig: str = "Pixis_2Mhz") -> SpectraCollector:
         if cls._instance is None:
             cls._instance = cls(lightFieldConfig)
         return cls._instance
 
-    def __init__(self, lightFieldConfig: str = "Pixis_2MHz", laser_controller: DaqController=None) -> None:
+    def __init__(
+        self,
+        lightFieldConfig: str = "Pixis_2MHz",
+        laser_controller: DaqController = None,
+    ) -> None:
         self._setup_lightfield(lightFieldConfig)
-        self._laser_controller = laser_controller or DaqController.instance()
+        self._daq_controller = laser_controller or DaqController.instance()
+
+    def remove_filter(self, wait: int = 4000):
+        """
+        Remove the Focus filter to allow raman
+
+        Parameters
+        ----------
+        wait : int
+            How long to wait for the acututor to finish moving in ms.
+        """
+        self._daq_controller.remove_filter()
+        time.sleep(wait)
+
+    def insert_filter(self, wait: int = 4000):
+        """
+        Insert the Focus filter to allow raman autofocus
+
+        Parameters
+        ----------
+        wait : int
+            How long to wait for the acututor to finish moving in ms.
+        """
+        self._daq_controller.insert_filter()
+        time.sleep(wait)
 
     @staticmethod
     def _convert_buffer(net_array, image_format):
@@ -74,7 +102,7 @@ class SpectraCollector:
         # Make a copy of the buffer
         return np.copy(resultArray)
 
-    def convert_capture(self, cap, spectrum_length=1340):
+    def _convert_capture(self, cap, spectrum_length=1340):
         """
         parameters
         ----------
@@ -87,7 +115,7 @@ class SpectraCollector:
         numpy array
             rows are samples
         """
-        arr = np.zeros([cap.Frames, 1340], dtype=np.uint16)
+        arr = np.zeros([cap.Frames, spectrum_length], dtype=np.uint16)
         for i in range(cap.Frames):
             frame = cap.GetFrame(0, i)
             arr[i] = self._convert_buffer(frame.GetData(), frame.Format)
@@ -143,11 +171,11 @@ class SpectraCollector:
         points = np.asarray(points)
         self.set_rm_exposure(exposure)
 
-        self._laser_controller.prepare_for_collection(points)
+        self._daq_controller.prepare_for_collection(points)
         self._experiment.Stop()
-        with self._laser_controller.open_shutter:
+        with self._daq_controller.open_shutter:
             dataset = self._experiment.Capture(points.shape[1])
-        self._laser_controller.galvo.stop()
+        self._daq_controller.galvo.stop()
         return self._convert_capture(dataset)
 
     def capture_rm_grid(
@@ -184,6 +212,6 @@ class SpectraCollector:
 
     def close(self):
         """Properly close open resources"""
-        self._laser_controller.close()
+        self._daq_controller.close()
         self._experiment.Stop()
         self._auto.Dispose()
