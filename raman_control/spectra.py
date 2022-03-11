@@ -18,7 +18,7 @@ from System import *  # noqa
 from System.Collections.Generic import List  # noqa
 from System.Runtime.InteropServices import GCHandle, GCHandleType  # noqa
 
-from .laser import DaqController
+from .daq import DaqController
 from .utils import make_grid
 
 # Add needed dll references
