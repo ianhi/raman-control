@@ -74,7 +74,7 @@ class LaserController:
     def galvo(self) -> nidaqmx.Task:
         return self._galvo
 
-    def close_daq(self):
+    def close(self):
         """
         stop then close the galvo and shutter daq connections
         """

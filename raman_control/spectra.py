@@ -181,3 +181,9 @@ class SpectraCollector:
             self.collect_spectra(xy_grid, exposure).squeeze().reshape(N, N, 1340),
             volts,
         )
+
+    def close(self):
+        """Properly close open resources"""
+        self._laser_controller.close()
+        self._experiment.Stop()
+        self._auto.Dispose()
