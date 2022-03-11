@@ -18,7 +18,7 @@ from System import *  # noqa
 from System.Collections.Generic import List  # noqa
 from System.Runtime.InteropServices import GCHandle, GCHandleType  # noqa
 
-from .laser import LaserController
+from .laser import DaqController
 from .utils import make_grid
 
 # Add needed dll references
@@ -45,9 +45,9 @@ class SpectraCollector:
             cls._instance = cls(lightFieldConfig)
         return cls._instance
 
-    def __init__(self, lightFieldConfig: str = "Pixis_2MHz", laser_controller: LaserController=None) -> None:
+    def __init__(self, lightFieldConfig: str = "Pixis_2MHz", laser_controller: DaqController=None) -> None:
         self._setup_lightfield(lightFieldConfig)
-        self._laser_controller = laser_controller or LaserController.instance()
+        self._laser_controller = laser_controller or DaqController.instance()
 
     @staticmethod
     def _convert_buffer(net_array, image_format):

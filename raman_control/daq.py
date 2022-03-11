@@ -8,7 +8,7 @@ SAMPLERATE = 100000
 
 __all__ = [
     "DigitalStateContextManager",
-    "LaserController",
+    "DaqController",
 ]
 
 
@@ -27,7 +27,13 @@ class DigitalStateContextManager:
         self.shutter.write(self.open_)
 
 
-class LaserController:
+class DaqController:
+    """
+    Interface for everything we contorl through the daq board.
+    - laser shutter
+    - laser galvo mirrors
+    - focus filter actuator
+    """
     _instance = None
 
     @classmethod
@@ -36,7 +42,7 @@ class LaserController:
         sampleClockSource: str = "PFI0",
         devName: str = "Dev1",
         channels: List[str] = ["Dev1/ao0", "Dev1/ao1"],
-    ) -> LaserController:
+    ) -> DaqController:
         if cls._instance is None:
             cls._instance = cls(sampleClockSource, devName, channels)
         return cls._instance
