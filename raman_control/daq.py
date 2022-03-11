@@ -72,7 +72,7 @@ class DaqController:
 
     @property
     def remove_filter(self) -> DigitalStateContextManager:
-        return self._filter
+        return self._remove_filter
 
     @property
     def open_shutter(self) -> DigitalStateContextManager:
