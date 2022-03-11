@@ -1,5 +1,5 @@
 from ._version import __version__
-from .laser import LaserController, ShutterController
+from .laser import LaserController, DigitalStateContextManager
 from .spectra import SpectraCollector
 from .utils import make_grid
 
@@ -7,7 +7,7 @@ from .utils import make_grid
 
 __all__ = [
     "__version__",
-    "ShutterController",
+    "DigitalStateContextManager",
     "LaserController",
     "SpectraCollector",
     "make_grid",

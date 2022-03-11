@@ -7,12 +7,12 @@ import numpy as np
 SAMPLERATE = 100000
 
 __all__ = [
-    "ShutterController",
+    "DigitalStateContextManager",
     "LaserController",
 ]
 
 
-class ShutterController:
+class DigitalStateContextManager:
     def __init__(self, shutter, open_):
         self.shutter = shutter
         self.open_ = open_
@@ -57,17 +57,17 @@ class LaserController:
         self._shutter = nidaqmx.Task("shutterDO")
         # not sure if this next line does anything or is important
         self._shutter.do_channels.add_do_chan("Dev1/port0/line0")
-        self._open_shutter = ShutterController(self._shutter, True)
-        self._close_shutter = ShutterController(self._shutter, False)
+        self._open_shutter = DigitalStateContextManager(self._shutter, True)
+        self._close_shutter = DigitalStateContextManager(self._shutter, False)
         # shutter.open = open_shutter
         # shutter.close = close_shutter
 
     @property
-    def open_shutter(self) -> ShutterController:
+    def open_shutter(self) -> DigitalStateContextManager:
         return self._open_shutter
 
     @property
-    def close_shutter(self) -> ShutterController:
+    def close_shutter(self) -> DigitalStateContextManager:
         return self._close_shutter
 
     @property
