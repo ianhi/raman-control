@@ -204,7 +204,7 @@ class SpectraCollector:
         volts : 1D array
             volts for passing to laser-pointer
         """
-        xy_grid, volts = make_grid(N, min_volts, max_volts)
+        xy_grid, volts = make_grid(N, min_volts, max_volts, True)
         return (
             self.collect_spectra(xy_grid, exposure).squeeze().reshape(N, N, 1340),
             volts,
