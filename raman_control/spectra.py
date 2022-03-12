@@ -53,6 +53,10 @@ class SpectraCollector:
         self._setup_lightfield(lightFieldConfig)
         self._daq_controller = laser_controller or DaqController.instance()
 
+    @property
+    def daq(self) -> DaqController:
+        return self._daq_controller
+
     def remove_filter(self, wait: int = 4000):
         """
         Remove the Focus filter to allow raman
