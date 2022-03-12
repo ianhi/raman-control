@@ -121,4 +121,4 @@ class DaqController:
             sample_mode=nidaqmx.constants.AcquisitionType.FINITE,
             samps_per_chan=points.shape[1],
         )
-        self._galvo.write(points, auto_start=False)
+        self._galvo.write(points, auto_start=True)
