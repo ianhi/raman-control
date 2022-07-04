@@ -1,7 +1,8 @@
 from __future__ import annotations
-import nidaqmx
 
 from typing import List
+
+import nidaqmx
 import numpy as np
 
 SAMPLERATE = 100000
@@ -34,6 +35,7 @@ class DaqController:
     - laser galvo mirrors
     - focus filter actuator
     """
+
     _instance = None
 
     @classmethod
@@ -41,14 +43,17 @@ class DaqController:
         cls,
         sampleClockSource: str = "PFI0",
         devName: str = "Dev1",
-        channels: List[str] = ["Dev1/ao0", "Dev1/ao1"],
+        channels: list[str] = ["Dev1/ao0", "Dev1/ao1"],
     ) -> DaqController:
         if cls._instance is None:
             cls._instance = cls(sampleClockSource, devName, channels)
         return cls._instance
 
     def __init__(
-        self, sampleClockSource="PFI0", devName="Dev1", channels=["Dev1/ao0", "Dev1/ao1"]
+        self,
+        sampleClockSource="PFI0",
+        devName="Dev1",
+        channels=["Dev1/ao0", "Dev1/ao1"],
     ) -> None:
         # galvo mirror
         self._galvo = nidaqmx.Task("galvoAO")

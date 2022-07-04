@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import ctypes
 import os
-import time
 
 # Import python sys module
 import sys
+import time
 
 # Import the .NET class library
 import clr

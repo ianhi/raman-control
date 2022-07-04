@@ -16,7 +16,7 @@ install the princetoninstruments python library following their instructions. Th
 
 `pip install git+https://github.com/ianhi/raman-control`
 
-or 
+or
 
 `pip install -e .[full]`
 

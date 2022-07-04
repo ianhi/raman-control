@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def make_grid(N, min_volts:float=-0.3, max_volts:float=0.3, *, stacked=True):
+def make_grid(N, min_volts: float = -0.3, max_volts: float = 0.3, *, stacked=True):
     """
     parameters
     ----------
@@ -18,7 +18,7 @@ def make_grid(N, min_volts:float=-0.3, max_volts:float=0.3, *, stacked=True):
     or
     x, y, volts
     """
-    if np.abs(min_volts)>.6 or np.abs(max_volts)>.6:
+    if np.abs(min_volts) > 0.6 or np.abs(max_volts) > 0.6:
         raise ValueError("voltage must inside [-0.6, 0.6] volts.")
 
     volts = np.linspace(min_volts, max_volts, N)
