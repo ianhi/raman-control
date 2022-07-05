@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ctypes
+from multiprocessing.sharedctypes import Value
 import os
 import time
 
@@ -35,23 +36,34 @@ from PrincetonInstruments.LightField.Automation import *  # noqa
 
 # fmt: on
 
+from .calibration import CoordTransformer
 
 class SpectraCollector:
     _instance = None
 
     @classmethod
-    def instance(cls, lightFieldConfig: str = "Pixis_2Mhz") -> SpectraCollector:
+    def instance(
+        cls,
+        lightFieldConfig: str = "Pixis_2Mhz",
+        laser_controller: DaqController = None,
+        coord_transformer: CoordTransformer = None,
+    ) -> SpectraCollector:
         if cls._instance is None:
-            cls._instance = cls(lightFieldConfig)
+            cls._instance = cls(lightFieldConfig, laser_controller, coord_transformer)
         return cls._instance
 
     def __init__(
         self,
         lightFieldConfig: str = "Pixis_2MHz",
         laser_controller: DaqController = None,
+        coord_transformer: CoordTransformer = None,
     ) -> None:
         self._setup_lightfield(lightFieldConfig)
         self._daq_controller = laser_controller or DaqController.instance()
+        if coord_transformer is None:
+            coord_transformer = CoordTransformer.from_json() # load the default model
+        self._coord_transformer = coord_transformer
+
 
     @property
     def daq(self) -> DaqController:
@@ -157,6 +169,24 @@ class SpectraCollector:
             camera exposure in milliseconds
         """
         self._set_value(CameraSettings.ShutterTimingExposureTime, exposure)
+
+    def collect_spectra_relative(self, points, exposure=20):
+        """
+        Parameters
+        ----------
+        points : (2, N) arraylike
+        exposure : float, default 20
+
+
+        Returns
+        -------
+        spectra : array
+            with shape (N, 1340)
+        """
+        if np.min(points) < 0 or np.max(points) > 1:
+            raise ValueError("Points must be in [0, 1]")
+        volts = self._coord_transformer.BF_to_volts(points)
+        return self.collect_spectra_volts(volts, exposure)
 
     def collect_spectra_volts(self, volts, exposure=20):
         """
