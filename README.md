@@ -23,7 +23,7 @@ or
 ## Basic Usage
 
 ```python
-from raman_control import SpectraCollector
+from raman_control.spectra import SpectraCollector
 
 # get a singleton object so we don't double initialize
 collector = SpectraCollector.instance()

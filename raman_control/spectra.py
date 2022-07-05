@@ -158,11 +158,11 @@ class SpectraCollector:
         """
         self._set_value(CameraSettings.ShutterTimingExposureTime, exposure)
 
-    def collect_spectra(self, points, exposure=20):
+    def collect_spectra_volts(self, volts, exposure=20):
         """
         Parameters
         ----------
-        points : arraylike
+        volts : arraylike
             shape (2, N)
         exposure : float (Default: 20)
             exposure time in ms
@@ -172,7 +172,7 @@ class SpectraCollector:
         spectra : array
             with shape (N, 1340)
         """
-        points = np.asarray(points)
+        points = np.asarray(volts)
         self.set_rm_exposure(exposure)
 
         self._daq_controller.prepare_for_collection(points)

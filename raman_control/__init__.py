@@ -1,14 +1,10 @@
 from ._version import __version__
-from .daq import DaqController, DigitalStateContextManager
-from .spectra import SpectraCollector
-from .utils import make_grid
 
-# from .calibration import *
+# don't import stuff and keep it in subpackages to make it importable
+# even on linux
+
 
 __all__ = [
     "__version__",
-    "DigitalStateContextManager",
-    "DaqController",
-    "SpectraCollector",
     "make_grid",
 ]

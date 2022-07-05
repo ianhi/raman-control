@@ -109,6 +109,7 @@ class DaqController:
         Parameters
         ----------
         points : 2xN array
+            In volts.
         """
         self._galvo.stop()
         # xy_grid, volts = make_grid(N)
