@@ -68,8 +68,8 @@ class DaqController:
         # focus filter actuator
         self._filter = nidaqmx.Task("filterDO")
         self._filter.do_channels.add_do_chan("Dev1/port2/line4")
-        self._remove_filter = DigitalStateContextManager(self._shutter, True)
-        self._insert_filter = DigitalStateContextManager(self._shutter, False)
+        self._remove_filter = DigitalStateContextManager(self._filter, True)
+        self._insert_filter = DigitalStateContextManager(self._filter, False)
 
     @property
     def remove_filter(self) -> DigitalStateContextManager:
