@@ -215,7 +215,7 @@ class SpectraCollector:
 
         # transpose to put into shape (2, N)
         points = points.T
-        self._daq_controller.prepare_for_collection(points.T)
+        self._daq_controller.prepare_for_collection(points)
         self._experiment.Stop()
         with self._daq_controller.open_shutter:
             dataset = self._experiment.Capture(points.shape[1])
