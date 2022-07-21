@@ -39,6 +39,7 @@ from PrincetonInstruments.LightField.Automation import *  # noqa
 from .calibration import CoordTransformer
 
 class SpectraCollector:
+    MAX_VOLTS: float = .6
     _instance = None
 
     @classmethod
@@ -208,6 +209,8 @@ class SpectraCollector:
         points = np.ascontiguousarray(volts)
         if points.shape[1]!=2 or points.ndim != 2:
             raise ValueError(f"volts must have shape (N, 2) but has shape {points.shape}")
+        if points.max()>self.MAX_VOLTS or points.min()<-self.MAX_VOLTS:
+            raise ValueError("Voltages out of the safe range of [-0.6, 0.6]")
         self.set_rm_exposure(exposure)
 
         # transpose to put into shape (2, N)
