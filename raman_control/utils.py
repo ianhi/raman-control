@@ -3,7 +3,8 @@ import numpy as np
 
 def make_grid(N, min_volts:float=-0.3, max_volts:float=0.3, *, stacked=True):
     """
-    parameters
+
+    Parameters
     ----------
     N : int
         number of grid points for each of x and y
@@ -12,7 +13,8 @@ def make_grid(N, min_volts:float=-0.3, max_volts:float=0.3, *, stacked=True):
     stacked : bool, optional
         if True stack x and y so that they can be directly passed
         to galvo.write
-    returns
+
+    Returns
     -------
     xy, volts
     or
@@ -26,5 +28,5 @@ def make_grid(N, min_volts:float=-0.3, max_volts:float=0.3, *, stacked=True):
     x = X.flatten()
     y = Y.flatten()
     if stacked:
-        return np.vstack([x, y]), volts
+        return np.vstack([x[:, None], y[:, None]]), volts
     return x, y, volts

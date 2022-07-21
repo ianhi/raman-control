@@ -174,7 +174,7 @@ class SpectraCollector:
         """
         Parameters
         ----------
-        points : (2, N) arraylike
+        points : (N, 2) arraylike
         exposure : float, default 20
 
 
@@ -183,8 +183,11 @@ class SpectraCollector:
         spectra : array
             with shape (N, 1340)
         """
-        if np.min(points) < 0 or np.max(points) > 1:
+        points = np.asarray(points)
+        if points.min() < 0 or points.max() > 1:
             raise ValueError("Points must be in [0, 1]")
+        if points.shape[1]!=2 or points.ndim != 2:
+            raise ValueError(f"volts must have shape (N, 2) but has shape {points.shape}")
         volts = self._coord_transformer.BF_to_volts(points)
         return self.collect_spectra_volts(volts, exposure)
 
@@ -193,7 +196,7 @@ class SpectraCollector:
         Parameters
         ----------
         volts : arraylike
-            shape (2, N)
+            shape (N, 2)
         exposure : float (Default: 20)
             exposure time in ms
 
@@ -203,9 +206,12 @@ class SpectraCollector:
             with shape (N, 1340)
         """
         points = np.asarray(volts)
+        if points.shape[1]!=2 or points.ndim != 2:
+            raise ValueError(f"volts must have shape (N, 2) but has shape {points.shape}")
         self.set_rm_exposure(exposure)
 
-        self._daq_controller.prepare_for_collection(points)
+        # transpose to put into shape (2, N)
+        self._daq_controller.prepare_for_collection(points.T)
         self._experiment.Stop()
         with self._daq_controller.open_shutter:
             dataset = self._experiment.Capture(points.shape[1])
@@ -228,7 +234,9 @@ class SpectraCollector:
             Length of the grid sides
         exposure : float
             exposure time in ms
-        min_volts, max_volts : float
+        min_volts, max_volts : floatconda install .
+
+I have no idea how to do this on Windows, but let me know if you install it and how and I can add it here :)
             The max voltage to apply to the galvos
 
         Returns
