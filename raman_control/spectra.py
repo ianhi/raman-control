@@ -205,12 +205,13 @@ class SpectraCollector:
         spectra : array
             with shape (N, 1340)
         """
-        points = np.asarray(volts)
+        points = np.ascontiguousarray(volts)
         if points.shape[1]!=2 or points.ndim != 2:
             raise ValueError(f"volts must have shape (N, 2) but has shape {points.shape}")
         self.set_rm_exposure(exposure)
 
         # transpose to put into shape (2, N)
+        points = points.T
         self._daq_controller.prepare_for_collection(points.T)
         self._experiment.Stop()
         with self._daq_controller.open_shutter:
