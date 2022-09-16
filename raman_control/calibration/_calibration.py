@@ -128,7 +128,7 @@ class CoordTransformer:
         model: linear_model.Ridge,
         vander_degs: tuple[int, int],
         metadata: dict = {},
-        **kwargs
+        **kwargs,
     ):
         """
         Save the model and vandermonde info as a json file.
