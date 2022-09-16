@@ -210,7 +210,7 @@ class SpectraCollector:
         if points.shape[1]!=2 or points.ndim != 2:
             raise ValueError(f"volts must have shape (N, 2) but has shape {points.shape}")
         if points.max()>self.MAX_VOLTS or points.min()<-self.MAX_VOLTS:
-            raise ValueError("Voltages out of the safe range of [-0.6, 0.6]")
+            raise ValueError(f"Voltages out of the safe range of [{-self.MAX_VOLTS:0.2f}, {self.MAX_VOLTS:0.2f}]")
         self.set_rm_exposure(exposure)
 
         # transpose to put into shape (2, N)
@@ -239,9 +239,7 @@ class SpectraCollector:
             Length of the grid sides
         exposure : float
             exposure time in ms
-        min_volts, max_volts : floatconda install .
-
-I have no idea how to do this on Windows, but let me know if you install it and how and I can add it here :)
+        min_volts, max_volts :
             The max voltage to apply to the galvos
 
         Returns
