@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import ctypes
-from multiprocessing.sharedctypes import Value
 import os
-import time
 
 # Import python sys module
 import sys
+import time
 
 # Import the .NET class library
 import clr
@@ -20,6 +19,7 @@ from System import *  # noqa
 from System.Collections.Generic import List  # noqa
 from System.Runtime.InteropServices import GCHandle, GCHandleType  # noqa
 
+from .calibration import CoordTransformer
 from .daq import DaqController
 from .utils import make_grid
 
@@ -36,10 +36,9 @@ from PrincetonInstruments.LightField.Automation import *  # noqa
 
 # fmt: on
 
-from .calibration import CoordTransformer
 
 class SpectraCollector:
-    MAX_VOLTS: float = .6
+    MAX_VOLTS: float = 0.6
     _instance = None
 
     @classmethod
@@ -62,9 +61,8 @@ class SpectraCollector:
         self._setup_lightfield(lightFieldConfig)
         self._daq_controller = laser_controller or DaqController.instance()
         if coord_transformer is None:
-            coord_transformer = CoordTransformer.from_json() # load the default model
+            coord_transformer = CoordTransformer.from_json()  # load the default model
         self._coord_transformer = coord_transformer
-
 
     @property
     def daq(self) -> DaqController:
@@ -187,8 +185,10 @@ class SpectraCollector:
         points = np.asarray(points)
         if points.min() < 0 or points.max() > 1:
             raise ValueError("Points must be in [0, 1]")
-        if points.shape[1]!=2 or points.ndim != 2:
-            raise ValueError(f"volts must have shape (N, 2) but has shape {points.shape}")
+        if points.shape[1] != 2 or points.ndim != 2:
+            raise ValueError(
+                f"volts must have shape (N, 2) but has shape {points.shape}"
+            )
         volts = self._coord_transformer.BF_to_volts(points)
         return self.collect_spectra_volts(volts, exposure)
 
@@ -207,10 +207,15 @@ class SpectraCollector:
             with shape (N, 1340)
         """
         points = np.asarray(volts)
-        if points.shape[1]!=2 or points.ndim != 2:
-            raise ValueError(f"volts must have shape (N, 2) but has shape {points.shape}")
-        if points.max()>self.MAX_VOLTS or points.min()<-self.MAX_VOLTS:
-            raise ValueError(f"Voltages out of the safe range of [{-self.MAX_VOLTS:0.2f}, {self.MAX_VOLTS:0.2f}]")
+        if points.shape[1] != 2 or points.ndim != 2:
+            raise ValueError(
+                f"volts must have shape (N, 2) but has shape {points.shape}"
+            )
+        if points.max() > self.MAX_VOLTS or points.min() < -self.MAX_VOLTS:
+            raise ValueError(
+                "Voltages out of "
+                f"the safe range: [{-self.MAX_VOLTS:0.2f}, {self.MAX_VOLTS:0.2f}]"
+            )
         self.set_rm_exposure(exposure)
 
         # transpose to put into shape (2, N)
