@@ -1,9 +1,16 @@
 from __future__ import annotations
-import numpy as np
-from sklearn import linear_model
-from numpy.polynomial.polynomial import polyvander2d as vander2d
+
 import json
 from pathlib import Path
+
+import numpy as np
+from numpy.polynomial.polynomial import polyvander2d as vander2d
+from sklearn import linear_model
+
+__all__ = [
+    "CoordTransformer",
+    "find_laser_center",
+]
 
 
 class CoordTransformer:
@@ -64,7 +71,7 @@ class CoordTransformer:
         X = np.asarray(X)
         if X.ndim != 2:
             X = np.column_stack([X, Y])
-        return 2*max_volts * X - max_volts
+        return 2 * max_volts * X - max_volts
 
     def BF_to_volts(
         self, X: np.ndarray, Y: np.ndarray = None, max_volts: float = 0.6
@@ -111,7 +118,7 @@ class CoordTransformer:
         sklearn.linear_model.Ridge
         """
         model = linear_model.Ridge(alpha=alpha)
-        vander = vander2d(rel_BF[:,0],rel_BF[:,1], vander_degs)
+        vander = vander2d(rel_BF[:, 0], rel_BF[:, 1], vander_degs)
         model.fit(vander, rel_RM)
         return model
 
@@ -150,7 +157,7 @@ class CoordTransformer:
             json.dump(info, f)
 
     @staticmethod
-    def from_json(fname: str=None):
+    def from_json(fname: str = None):
         """
         Generate a CoordTransformer from a json file.
 
@@ -166,11 +173,60 @@ class CoordTransformer:
         """
         if fname is None:
             fname = str(Path(__file__).parent / "model.json")
-        with open(fname, "r") as f:
+        with open(fname) as f:
             info = json.load(f)
         return CoordTransformer(
             np.array(info["coef"]),
             np.array(info["intercept"]),
             info["vander_degs"],
         )
-    
+
+
+def find_laser_center(
+    img: np.ndarray,
+    threshold: int = 65000,
+    area_threshold: int = None,
+    plot: bool = False,
+) -> tuple[float, float]:
+    """
+    Find the center of the laser beam
+
+    Parameters
+    ----------
+    img : (Y, X) array
+    threshold: int, default=65000
+    area_threshold : int
+        area threshold for remove_small_holes.
+        If *None* a guess will be made based on the image size
+    plot : bool, default=False
+        If true make a figure and make a diagnostic plot
+
+    Returns
+    -------
+    center : (int, int)
+        Best guess at the laser center
+
+    """
+    import scipy.ndimage as ndi
+    from skimage.feature import peak_local_max
+    from skimage.morphology import remove_small_holes
+
+    area_threshold = int((img.shape[0] / 1024) * 64)
+
+    arr = remove_small_holes(img > threshold, area_threshold=area_threshold)
+    distance = ndi.distance_transform_edt(arr)
+    peaks = peak_local_max(distance, num_peaks=1)
+
+    if plot:
+        import matplotlib.pyplot as plt
+
+        fig, axs = plt.subplots(1, 2, sharex=True, sharey=True)
+        axs[0].imshow(arr)
+        axs[1].imshow(distance)
+        axs[0].scatter(*peaks[0][::-1], color="k")
+        axs[1].scatter(*peaks[0][::-1], color="k")
+
+    if len(peaks) > 0:
+        return peaks[0][0], peaks[0][1]
+    else:
+        return (-1, -1)
