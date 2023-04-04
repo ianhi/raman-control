@@ -65,6 +65,16 @@ class SpectraCollector:
         self._coord_transformer = coord_transformer
 
     @property
+    def coord_transformer(self) -> CoordTransformer:
+        return self._coord_transformer
+
+    @coord_transformer.setter
+    def coord_transformer(self, val: CoordTransformer):
+        if not isinstance(val, CoordTransformer):
+            raise TypeError("Must be a CoordTransformer.")
+        self._coord_transformer = val
+
+    @property
     def daq(self) -> DaqController:
         return self._daq_controller
 
