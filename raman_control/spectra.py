@@ -167,7 +167,7 @@ class SpectraCollector:
         exposure : float
             camera exposure in milliseconds
         """
-        self._set_value(CameraSettings.ShutterTimingExposureTime, exposure)
+        self._set_value(CameraSettings.ShutterTimingExposureTime, float(exposure))
 
     def collect_spectra_relative(self, points, exposure=20):
         """
