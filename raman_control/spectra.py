@@ -99,11 +99,11 @@ class SpectraCollector:
             src_ptr = src_hndl.AddrOfPinnedObject().ToInt64()
 
             # Possible data types returned from acquisition
-            if image_format == ImageDataFormat.MonochromeUnsigned16:
+            if image_format == ImageDataFormat.MonochromeUnsigned16:  # noqa: F405
                 buf_type = ctypes.c_ushort * len(net_array)
-            elif image_format == ImageDataFormat.MonochromeUnsigned32:
+            elif image_format == ImageDataFormat.MonochromeUnsigned32:  # noqa: F405
                 buf_type = ctypes.c_uint * len(net_array)
-            elif image_format == ImageDataFormat.MonochromeFloating32:
+            elif image_format == ImageDataFormat.MonochromeFloating32:  # noqa: F405
                 buf_type = ctypes.c_float * len(net_array)
 
             cbuf = buf_type.from_address(src_ptr)
@@ -145,7 +145,7 @@ class SpectraCollector:
         """
         # Create the LightField Application (true for visible)
         # The 2nd parameter forces LF to load with no experiment
-        auto = Automation(True, List[String]())
+        auto = Automation(True, List[String]())  # noqa: F405
         experiment = auto.LightFieldApplication.Experiment
         experiment.Load(config)
 
@@ -167,7 +167,9 @@ class SpectraCollector:
         exposure : float
             camera exposure in milliseconds
         """
-        self._set_value(CameraSettings.ShutterTimingExposureTime, float(exposure))
+        self._set_value(
+            CameraSettings.ShutterTimingExposureTime, float(exposure)  # noqa: F405
+        )
 
     def collect_spectra_relative(self, points, exposure=20):
         """
