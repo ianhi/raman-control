@@ -15,9 +15,9 @@ import numpy as np
 
 # fmt: off
 # Import c compatible List and String
-from System import *  # noqa
-from System.Collections.Generic import List  # noqa
-from System.Runtime.InteropServices import GCHandle, GCHandleType  # noqa
+from System import *
+from System.Collections.Generic import List
+from System.Runtime.InteropServices import GCHandle, GCHandleType
 
 from .calibration import CoordTransformer
 from .daq import DaqController
@@ -31,8 +31,8 @@ clr.AddReference("PrincetonInstruments.LightField.AutomationV5")
 clr.AddReference("PrincetonInstruments.LightFieldAddInSupportServices")
 
 
-from PrincetonInstruments.LightField.AddIns import *  # noqa
-from PrincetonInstruments.LightField.Automation import *  # noqa
+from PrincetonInstruments.LightField.AddIns import *
+from PrincetonInstruments.LightField.Automation import *
 
 # fmt: on
 
@@ -109,11 +109,11 @@ class SpectraCollector:
             src_ptr = src_hndl.AddrOfPinnedObject().ToInt64()
 
             # Possible data types returned from acquisition
-            if image_format == ImageDataFormat.MonochromeUnsigned16:  # noqa: F405
+            if image_format == ImageDataFormat.MonochromeUnsigned16:
                 buf_type = ctypes.c_ushort * len(net_array)
-            elif image_format == ImageDataFormat.MonochromeUnsigned32:  # noqa: F405
+            elif image_format == ImageDataFormat.MonochromeUnsigned32:
                 buf_type = ctypes.c_uint * len(net_array)
-            elif image_format == ImageDataFormat.MonochromeFloating32:  # noqa: F405
+            elif image_format == ImageDataFormat.MonochromeFloating32:
                 buf_type = ctypes.c_float * len(net_array)
 
             cbuf = buf_type.from_address(src_ptr)
@@ -155,7 +155,7 @@ class SpectraCollector:
         """
         # Create the LightField Application (true for visible)
         # The 2nd parameter forces LF to load with no experiment
-        auto = Automation(True, List[String]())  # noqa: F405
+        auto = Automation(True, List[String]())
         experiment = auto.LightFieldApplication.Experiment
         experiment.Load(config)
 
@@ -177,9 +177,7 @@ class SpectraCollector:
         exposure : float
             camera exposure in milliseconds
         """
-        self._set_value(
-            CameraSettings.ShutterTimingExposureTime, float(exposure)  # noqa: F405
-        )
+        self._set_value(CameraSettings.ShutterTimingExposureTime, float(exposure))
 
     def collect_spectra_relative(self, points, exposure=20):
         """
