@@ -6,8 +6,8 @@ import numpy as np
 SAMPLERATE = 100000
 
 __all__ = [
-    "DigitalStateContextManager",
     "DaqController",
+    "DigitalStateContextManager",
 ]
 
 
